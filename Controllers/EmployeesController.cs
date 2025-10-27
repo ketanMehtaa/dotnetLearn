@@ -78,8 +78,15 @@ public class EmployeesController : ControllerBase
         {
             return NotFound();
         }
+
         dbcontext.Employees.Remove(employee);
         dbcontext.SaveChanges();
         return Ok();
+    }
+
+    [HttpGet("test-error")]
+    public IActionResult TestError()
+    {
+        throw new Exception("Testing global exception handler");
     }
 }
