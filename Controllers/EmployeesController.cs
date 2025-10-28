@@ -1,7 +1,6 @@
 using dotnetLearn.Data;
 using dotnetLearn.Models;
 using dotnetLearn.Models.Entities;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dotnetLearn.Controllers;
@@ -14,7 +13,7 @@ public class EmployeesController : ControllerBase
 
     public EmployeesController(ApplicationDbContext dbContext)
     {
-        dbcontext = dbContext;
+        this.dbcontext = dbContext;
     }
 
     [HttpGet]
@@ -31,7 +30,10 @@ public class EmployeesController : ControllerBase
     public IActionResult GetEmployeeById(Guid id)
     {
         var employee = dbcontext.Employees.Find(id);
-        if (employee == null) return NotFound();
+        if (employee == null)
+        {
+            return NotFound();
+        }
 
         return Ok(employee);
     }
@@ -39,12 +41,12 @@ public class EmployeesController : ControllerBase
     [HttpPost]
     public IActionResult AddEmployee(AddEmployeeDto addEmployeeDto)
     {
-        var employeeEntity = new Employee
+        var employeeEntity = new Employee()
         {
             Name = addEmployeeDto.Name,
             Email = addEmployeeDto.Email,
             Phone = addEmployeeDto.Phone,
-            Salary = addEmployeeDto.Salary
+            Salary = addEmployeeDto.Salary,
         };
 
         dbcontext.Employees.Add(employeeEntity);
@@ -72,7 +74,10 @@ public class EmployeesController : ControllerBase
     public IActionResult DeleteEmployee(Guid id)
     {
         var employee = dbcontext.Employees.Find(id);
-        if (employee is null) return NotFound();
+        if (employee is null)
+        {
+            return NotFound();
+        }
 
         dbcontext.Employees.Remove(employee);
         dbcontext.SaveChanges();
@@ -83,12 +88,5 @@ public class EmployeesController : ControllerBase
     public IActionResult TestError()
     {
         throw new Exception("Testing global exception handler");
-    }
-
-    [HttpGet("data")]
-    [Authorize] // Requires valid JWT token
-    public IActionResult GetSecureData()
-    {
-        return Ok(new { message = "Authorized access!" });
     }
 }
