@@ -49,6 +49,11 @@ public class AuthController : ControllerBase
         if (result.Succeeded)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
             var token = GenerateJwtToken(user);
             return Ok(new { token });
         }
@@ -58,6 +63,9 @@ public class AuthController : ControllerBase
 
     private string GenerateJwtToken(IdentityUser user)
     {
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(user.Email);
+
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Email),
@@ -66,7 +74,7 @@ public class AuthController : ControllerBase
         };
 
         var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured")));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
