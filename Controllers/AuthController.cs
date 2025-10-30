@@ -44,11 +44,11 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequestDto model)
     {
         var result = await _signInManager.PasswordSignInAsync(
-            model.Email, model.Password, false, false);
+            model.Username, model.Password, false, false);
 
         if (result.Succeeded)
         {
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            var user = await _userManager.FindByNameAsync(model.Username);
             if (user == null)
             {
                 return Unauthorized();
