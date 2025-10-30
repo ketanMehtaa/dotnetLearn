@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace dotnetLearn.Models.Entities;
+namespace dotnetLearn.Models;
 
-public class Ride
+public class RideDto
 {
     public Guid Id { get; set; }
     public required string FromLocation { get; set; }
@@ -10,5 +10,4 @@ public class Ride
     public required DateTime DepartureTime { get; set; }
 
     public required string DriverId { get; set; }
-    public IdentityUser? Driver { get; set; }
 }

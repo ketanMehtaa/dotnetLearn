@@ -23,18 +23,37 @@ public class RidesController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetAllRides()
+    public async Task<IActionResult> GetAllRides()
     {
+        var email = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
         var allRides = _dbcontext.Rides
-            .Where(r => r.DriverId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+            .Where(r => r.DriverId == user.Id)
+            .ToList()
+            .Select(rideEntity => new RideDto
+            {
+                Id = rideEntity.Id,
+                FromLocation = rideEntity.FromLocation,
+                ToLocation = rideEntity.ToLocation,
+                DepartureTime = rideEntity.DepartureTime,
+                DriverId = rideEntity.DriverId
+            })
             .ToList();
+
+        
+
         return Ok(allRides);
     }
 
 
     [HttpGet]
     [Route("{id:guid}")]
-    public IActionResult GetRideById(Guid id)
+    public async Task<IActionResult> GetRideById(Guid id)
     {
         var ride = _dbcontext.Rides.Find(id);
         if (ride == null)
@@ -42,50 +61,65 @@ public class RidesController : ControllerBase
             return NotFound();
         }
 
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var email = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var user = await _userManager.FindByEmailAsync(email);
+        var userId = user.Id;
         if (userId == null || userId != ride.DriverId)
         {
             return Unauthorized();
         }
 
-        return Ok(ride);
+        return Ok(new RideDto
+        {
+            Id = ride.Id,
+            FromLocation = ride.FromLocation,
+            ToLocation = ride.ToLocation,
+            DepartureTime = ride.DepartureTime,
+            DriverId = ride.DriverId
+        });
     }
 
     [HttpPost]
     public async Task<IActionResult> AddRide(AddRideDto addRideDto)
-    {
-        // Get the current user
-        var user = await _userManager.GetUserAsync(User);
+    {       
+        var email = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var user = await _userManager.FindByEmailAsync(email);
         if (user == null)
         {
             return Unauthorized();
         }
-
-        var userId = user.Id;
 
         var rideEntity = new Ride()
         {
             FromLocation = addRideDto.FromLocation,
             ToLocation = addRideDto.ToLocation,
             DepartureTime = addRideDto.DepartureTime,
-            DriverId = userId,
-            Driver = user
+            DriverId = user.Id
         };
 
         _dbcontext.Rides.Add(rideEntity);
         _dbcontext.SaveChanges();
 
-        return Ok(rideEntity);
+        return Ok(new RideDto
+        {
+            Id = rideEntity.Id,
+            FromLocation = rideEntity.FromLocation,
+            ToLocation = rideEntity.ToLocation,
+            DepartureTime = rideEntity.DepartureTime,
+            DriverId = rideEntity.DriverId
+        });
     }
 
     [HttpPut]
     [Route("{id:guid}")]
-    public IActionResult UpdateRide(Guid id, AddRideDto addRideDto)
+    public async Task<IActionResult> UpdateRide(Guid id, AddRideDto addRideDto)
     {
         var ride = _dbcontext.Rides.Find(id);
         if (ride == null) return NotFound();
 
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var email = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var user = await _userManager.FindByEmailAsync(email);
+        var userId = user.Id;
         if (userId == null || userId != ride.DriverId)
         {
             return Unauthorized();
@@ -96,13 +130,20 @@ public class RidesController : ControllerBase
         ride.DepartureTime = addRideDto.DepartureTime;
 
         _dbcontext.SaveChanges();
-        return Ok(ride);
+        return Ok(new RideDto
+        {
+            Id = ride.Id,
+            FromLocation = ride.FromLocation,
+            ToLocation = ride.ToLocation,
+            DepartureTime = ride.DepartureTime,
+            DriverId = ride.DriverId
+        });
     }
 
 
     [HttpDelete]
     [Route("{id:guid}")]
-    public IActionResult DeleteRide(Guid id)
+    public async Task<IActionResult> DeleteRide(Guid id)
     {
         var ride = _dbcontext.Rides.Find(id);
         if (ride is null)
@@ -110,7 +151,9 @@ public class RidesController : ControllerBase
             return NotFound();
         }
 
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var email = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var user = await _userManager.FindByEmailAsync(email);
+        var userId = user.Id;
         if (userId == null || userId != ride.DriverId)
         {
             return Unauthorized();
