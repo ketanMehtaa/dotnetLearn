@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using dotnetLearn.Data;
 using dotnetLearn.Middleware;
@@ -16,6 +17,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "BlaBla Clone API",
+        Version = "v1",
+        Description = "A simple example ASP.NET Core Web API for learning purposes"
+    });
+
+    // Include XML comments
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",

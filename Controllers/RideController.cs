@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace dotnetLearn.Controllers;
 
+/// <summary>
+/// Manages ride sharing operations for authenticated users
+/// </summary>
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
@@ -22,7 +25,15 @@ public class RidesController : ControllerBase
         this._userManager = userManager;
     }
 
+    /// <summary>
+    /// Gets all rides created by the authenticated user
+    /// </summary>
+    /// <returns>List of rides belonging to the current user</returns>
+    /// <response code="200">Returns the list of user's rides</response>
+    /// <response code="401">User is not authenticated</response>
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetAllRides()
     {
         var email = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -51,8 +62,19 @@ public class RidesController : ControllerBase
     }
 
 
+    /// <summary>
+    /// Gets a specific ride by its ID
+    /// </summary>
+    /// <param name="id">The unique identifier of the ride</param>
+    /// <returns>The ride details if found and belongs to the current user</returns>
+    /// <response code="200">Returns the ride details</response>
+    /// <response code="401">User is not authenticated or ride doesn't belong to user</response>
+    /// <response code="404">Ride not found</response>
     [HttpGet]
     [Route("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRideById(Guid id)
     {
         var ride = _dbcontext.Rides.Find(id);
@@ -79,7 +101,18 @@ public class RidesController : ControllerBase
         });
     }
 
+    /// <summary>
+    /// Creates a new ride for the authenticated user
+    /// </summary>
+    /// <param name="addRideDto">The ride information to create</param>
+    /// <returns>The created ride details</returns>
+    /// <response code="200">Ride created successfully</response>
+    /// <response code="401">User is not authenticated</response>
+    /// <response code="400">Invalid ride data provided</response>
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> AddRide(AddRideDto addRideDto)
     {       
         var email = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -110,8 +143,22 @@ public class RidesController : ControllerBase
         });
     }
 
+    /// <summary>
+    /// Updates an existing ride owned by the authenticated user
+    /// </summary>
+    /// <param name="id">The unique identifier of the ride to update</param>
+    /// <param name="addRideDto">The updated ride information</param>
+    /// <returns>The updated ride details</returns>
+    /// <response code="200">Ride updated successfully</response>
+    /// <response code="401">User is not authenticated or ride doesn't belong to user</response>
+    /// <response code="404">Ride not found</response>
+    /// <response code="400">Invalid ride data provided</response>
     [HttpPut]
     [Route("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateRide(Guid id, AddRideDto addRideDto)
     {
         var ride = _dbcontext.Rides.Find(id);
@@ -141,8 +188,19 @@ public class RidesController : ControllerBase
     }
 
 
+    /// <summary>
+    /// Deletes a ride owned by the authenticated user
+    /// </summary>
+    /// <param name="id">The unique identifier of the ride to delete</param>
+    /// <returns>Success confirmation</returns>
+    /// <response code="200">Ride deleted successfully</response>
+    /// <response code="401">User is not authenticated or ride doesn't belong to user</response>
+    /// <response code="404">Ride not found</response>
     [HttpDelete]
     [Route("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteRide(Guid id)
     {
         var ride = _dbcontext.Rides.Find(id);
