@@ -1,0 +1,128 @@
+erDiagram
+    %% Simplified Identity
+    AspNetUsers ||--|| UserProfile : extends
+    AspNetUsers ||--o{ AspNetUserRoles : has
+    AspNetRoles ||--o{ AspNetUserRoles : has
+    
+    %% Core Carpooling
+    UserProfile ||--o{ Trip : "creates/drives"
+    UserProfile ||--o{ Booking : "makes bookings"
+    UserProfile ||--o{ Review : "writes"
+    UserProfile ||--o{ Review : "receives"
+    UserProfile ||--o{ Vehicle : owns
+    UserProfile ||--o{ Message : sends
+    UserProfile ||--o{ Message : receives
+    
+    Trip ||--o{ Booking : "has bookings"
+    Trip ||--|| Vehicle : uses
+    Trip ||--o{ Review : "has reviews"
+    
+    Booking ||--|| Payment : "requires payment"
+    Booking ||--o{ Message : "related to"
+
+    AspNetUsers {
+        string Id PK
+        string Email
+        string PasswordHash
+        bool EmailConfirmed
+        string PhoneNumber
+        bool PhoneNumberConfirmed
+    }
+
+    AspNetRoles {
+        string Id PK
+        string Name
+    }
+
+    AspNetUserRoles {
+        string UserId FK
+        string RoleId FK
+    }
+
+    UserProfile {
+        string Id PK,FK
+        string FirstName
+        string LastName
+        datetime DateOfBirth
+        string ProfilePictureUrl
+        string Bio
+        bool IsVerified
+        decimal AverageRating
+        int TotalRatings
+        int CompletedTrips
+        datetime MemberSince
+        bool IsActive
+    }
+
+    Vehicle {
+        int Id PK
+        string UserId FK
+        string Make
+        string Model
+        int Year
+        string LicensePlate
+        int Capacity
+        bool IsVerified
+    }
+
+    Trip {
+        int Id PK
+        string DriverId FK
+        int VehicleId FK
+        string OriginAddress
+        decimal OriginLat
+        decimal OriginLng
+        string DestinationAddress
+        decimal DestinationLat
+        decimal DestinationLng
+        datetime DepartureTime
+        int AvailableSeats
+        decimal PricePerSeat
+        string Status
+        datetime CreatedDate
+    }
+
+    Booking {
+        int Id PK
+        int TripId FK
+        string PassengerId FK
+        string PickupAddress
+        string DropoffAddress
+        int Seats
+        decimal TotalPrice
+        string Status
+        datetime BookingDate
+    }
+
+    Payment {
+        int Id PK
+        int BookingId FK
+        decimal Amount
+        string PaymentMethod
+        string Status
+        string TransactionId
+        datetime PaymentDate
+    }
+
+    Review {
+        int Id PK
+        int TripId FK
+        string ReviewerId FK
+        string RevieweeId FK
+        int Rating
+        string Comment
+        bool IsDriverReview
+        datetime CreatedDate
+    }
+
+    Message {
+        int Id PK
+        string SenderId FK
+        string RecipientId FK
+        int BookingId FK
+        string MessageText
+        bool IsRead
+        datetime SentDate
+        datetime ReadDate
+        string MessageType
+    }

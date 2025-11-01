@@ -34,8 +34,6 @@ public class AuthController : ControllerBase
     /// </summary>
     /// <param name="model">User registration information</param>
     /// <returns>Success message or validation errors</returns>
-    /// <response code="200">User registered successfully</response>
-    /// <response code="400">Registration failed due to validation errors</response>
     [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

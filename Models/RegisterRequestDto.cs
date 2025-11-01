@@ -21,5 +21,5 @@ public class RegisterRequestDto
     /// The password for the new account (must meet complexity requirements)
     /// </summary>
     /// <example>StrongPassword123!</example>
-    public required string Password { get; set; }
+    public required string Password { get; set; }                                                                                                           
 }

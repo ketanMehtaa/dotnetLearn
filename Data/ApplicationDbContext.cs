@@ -10,6 +10,5 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     public ApplicationDbContext(DbContextOptions options) : base(options)
     {
     }
-    public DbSet<Employee> Employees { get; set; }
     public DbSet<Ride> Rides { get; set; }
 }

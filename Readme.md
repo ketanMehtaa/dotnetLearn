@@ -6,6 +6,11 @@ dotnet ef migrations add InitialCreate
 # Apply migration to create database
 dotnet ef database update
 
+## reset DB and recreate db 
+
+dotnet ef database drop -f && dotnet ef database update
+
+
 # DBeaver Default
 
 Host: localhost
